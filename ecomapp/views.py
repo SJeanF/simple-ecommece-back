@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -7,7 +7,16 @@ from .serializers import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-# from .products import products
+
+# for sending mails and generate token
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
+from .utils import TokenGenerator,generate_token
+from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeError
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.views.generic import View
+
 
 from .models import Product
 from .serializers import ProductSerializer, UserSerializer, UserSerializerWithToken
@@ -57,10 +66,38 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 def registerUser(request):
   data = request.data
   try :
-    user = User.objects.create(first_name=data['fname'], last_name=data['lname'], username=data['email'], email=data['email'], password=make_password(data['password']))
+    user = User.objects.create(first_name=data['fname'], last_name=data['lname'], username=data['email'], email=data['email'], password=make_password(data['password']), is_active=False)
+    
+    email_subject = "Activate Your Account"
+    message=render_to_string('activate.html',{
+      'user': user,
+      'domain': '127.0.0.1:8000',
+      'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+      'token': generate_token.make_token(user)
+    })
+
+
+    email_message = EmailMessage(email_subject, message, to=[data['email']])
+    email_message.content_subtype = 'html'
+    email_message.send()
+
     serialized = UserSerializerWithToken(user, many=False)
-    print(serialized)
     return Response(serialized.data)
   except Exception as e:
     message = {'deatil': f'{e}'}
     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
+class ActivateAccountView(View):
+  def get(self, request, uid64, token):
+    try:
+      uid = force_text(urlsafe_base64_decode(uid64))
+      user = User.objects.get(id=uid)
+
+    except Exception as r:
+      user=None
+    if user is not None and generate_token.check_token(user,token):
+        user.is_active=True
+        user.save()
+        return render(request,"activatesuccess.html")
+    else:
+        return render(request,"activatefail.html")   
