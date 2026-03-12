@@ -1,10 +1,14 @@
 from ecomapp import views
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 urlpatterns = [
   path('', views.getRoutes, name='getRoutes'),
   path('products/', views.getProducts, name='getProducts'),
   path('product/<int:pk>', views.getProduct, name='getProduct'),
   path('user/', views.getUserProfile, name='getUserProfile'),
-  path('users/', views.getUsers, name='getUsers')
+  path('users/', views.getUsers, name='getUsers'),
+  path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+  path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 ]
