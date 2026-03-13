@@ -27,7 +27,6 @@ def getRoutes(request):
   return Response('Hello Jenan')
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getProducts(request):
   products = Product.objects.all()
   serialized = ProductSerializer(products, many=True)
@@ -35,7 +34,6 @@ def getProducts(request):
   return Response(serialized.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getProduct(request, pk):
 
   product = get_object_or_404(Product, _id=pk)
