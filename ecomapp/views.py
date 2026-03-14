@@ -69,7 +69,7 @@ def registerUser(request):
     serialized = UserSerializerWithToken(user, many=False)
     return Response(serialized.data)
   except Exception as e:
-    message = {'deatil': e}
+    message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 class ActivateAccountView(View):
@@ -95,5 +95,5 @@ def remove_testUser(request):
     message = {'detail': 'usuario de teste deletado com sucesso'}
     return Response(message)
   except Exception as e:
-    message = {'detail': e}
+    message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
