@@ -1,8 +1,6 @@
 {% autoescape off %}
 
-Hi {{user.first_name}}
-Please Click This Link below to verify your account
-
-http://{{domain}}{% url 'activateAccount' uid64=uid token=token %}
+<h4>Hi {{user.first_name}}</h4>
+<p>Please Click This <a href="http://{{domain}}{% url 'activateAccount' uid64=uid token=token %}">here<a/> to verify your account<p/>
 
 {% endautoescape %}
