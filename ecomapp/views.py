@@ -9,13 +9,11 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
 # for sending mails and generate token
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
-from .utils import TokenGenerator,generate_token
-from django.utils.encoding import force_bytes,force_text,DjangoUnicodeDecodeError
-from django.core.mail import EmailMessage
-from django.conf import settings
+from django.utils.http import urlsafe_base64_decode
+from .utils import generate_token
+from django.utils.encoding import force_text
 from django.views.generic import View
+from .services import send_activation_email
 
 
 from .models import Product
@@ -66,19 +64,7 @@ def registerUser(request):
   try :
     user = User.objects.create(first_name=data['fname'], last_name=data['lname'], username=data['email'], email=data['email'], password=make_password(data['password']), is_active=False)
     
-    email_subject = "Activate Your Account"
-    message=render_to_string('activate.html',{
-      'user': user,
-      'domain': '127.0.0.1:8000',
-      'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-      'token': generate_token.make_token(user)
-    })
-
-    print(message)
-
-    email_message = EmailMessage(email_subject, message, to=[data['email']])
-    email_message.content_subtype = 'html'
-    email_message.send()
+    send_activation_email(user)
 
     serialized = UserSerializerWithToken(user, many=False)
     return Response(serialized.data)
