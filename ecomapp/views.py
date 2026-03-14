@@ -69,7 +69,7 @@ def registerUser(request):
     serialized = UserSerializerWithToken(user, many=False)
     return Response(serialized.data)
   except Exception as e:
-    message = {'deatil': f'{e}'}
+    message = {'deatil': e}
     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 class ActivateAccountView(View):
@@ -78,7 +78,7 @@ class ActivateAccountView(View):
       uid = force_text(urlsafe_base64_decode(uid64))
       user = User.objects.get(id=uid)
 
-    except Exception as r:
+    except Exception as e:
       user=None
     if user is not None and generate_token.check_token(user,token):
         user.is_active=True
@@ -86,3 +86,14 @@ class ActivateAccountView(View):
         return render(request,"activatesuccess.html")
     else:
         return render(request,"activatefail.html")   
+
+@api_view(['DELETE'])
+def remove_testUser(request):
+  try:
+    User.objects.get(username='jeanfonseca1606@gmail.com').delete()
+
+    message = {'detail': 'usuario de teste deletado com sucesso'}
+    return Response(message)
+  except Exception as e:
+    message = {'detail': e}
+    return Response(message, status=status.HTTP_404_NOT_FOUND)
