@@ -13,7 +13,7 @@ from django.utils.http import urlsafe_base64_decode
 from .utils import generate_token
 from django.utils.encoding import force_text
 from django.views.generic import View
-from .services import send_activation_email
+from .tasks import send_activation_email
 
 
 from .models import Product
