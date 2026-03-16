@@ -3,7 +3,15 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from .utils import generate_token
+import threading
 
+class EmailThread(threading.Thread):
+  def __init__(self, email_message):
+    self.email_message = email_message
+    threading.Thread.__init__(self)
+  
+  def run(self):
+    self.email_message.send()
 
 def send_activation_email(user):
   email_subject = "Activate Your Account"
@@ -18,4 +26,5 @@ def send_activation_email(user):
 
   email_message = EmailMessage(email_subject, message, to=[user.email])
   email_message.content_subtype = 'html'
-  email_message.send()
+
+  EmailThread(email_message).start()
