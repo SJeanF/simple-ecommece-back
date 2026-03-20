@@ -90,7 +90,7 @@ class ActivateAccountView(View):
 @api_view(['GET'])
 def get_all_orders_from_user(request, pk):
   try:
-    order = Order.objects.filter(_id=pk)
+    order = Order.objects.filter(user=pk)
     serialized = OrderSerializer(order, many=True)
 
     print(order)
