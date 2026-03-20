@@ -1,5 +1,4 @@
 from .models import Order
-from .serializers import OrderSerializer
 from django.utils import timezone
 
 def conclude_current_order(user):
@@ -8,8 +7,7 @@ def conclude_current_order(user):
   current_order.closed_at = timezone.now()
   current_order.save()
 
-  serialized_current_order = OrderSerializer(current_order, many=False)
-  return serialized_current_order.data
+  return current_order
 
 def create_new_order(user):
   Order.objects.create(user=user)

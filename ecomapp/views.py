@@ -127,10 +127,11 @@ def checkout_order(request):
     with transaction.atomic():
       user = request.user
       closed_order =  conclude_current_order(user)
+      serialized_closed_order= OrderSerializer(closed_order, many=False)
 
       create_new_order(user)
 
-      return Response(closed_order)
+      return Response(serialized_closed_order.data)
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
