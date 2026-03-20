@@ -24,6 +24,7 @@ class Order(models.Model):
   _id = models.AutoField(primary_key=True, editable=False)
   user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
   created_at = models.DateTimeField(auto_now_add=True)
+  closed_at = models.DateTimeField(default=None ,blank=True, null=True)
   is_completed = models.BooleanField(default=False)
 
   def __str__(self):
