@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product
+from .models import Product, Order, OrderItem
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -51,3 +51,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     for k, v in serialized.items():
       data[k] = v
     return data
+  
+class OrderItemSerializer(serializers.ModelSerializer):
+  product = ProductSerializer(many=False)
+
+  class Meta:
+    model = OrderItem
+    fields = '__all__'
+class OrderSerializer(serializers.ModelSerializer):
+  items = OrderItemSerializer(many=True, read_only=True)
+
+  class Meta:
+    model = Order
+    fields = '__all__'
