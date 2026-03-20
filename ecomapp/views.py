@@ -88,9 +88,11 @@ class ActivateAccountView(View):
         return render(request,"activatefail.html")   
 
 @api_view(['GET'])
-def get_all_orders_from_user(request, pk):
+def get_all_orders_from_user(request):
   try:
-    order = Order.objects.filter(user=pk)
+    user = request.user
+
+    order = Order.objects.filter(user=user.id)
     serialized = OrderSerializer(order, many=True)
 
     print(order)
@@ -101,9 +103,11 @@ def get_all_orders_from_user(request, pk):
     return Response(message)
 
 @api_view(['GET'])
-def get_current_order_by_user(request, pk):
+def get_current_order(request):
   try:
-    order = Order.objects.get(user=pk, is_completed=False)
+    user = request.user
+
+    order = Order.objects.get(user=user.id, is_completed=False)
     serialized = OrderSerializer(order, many=False)
 
     return Response(serialized.data)
