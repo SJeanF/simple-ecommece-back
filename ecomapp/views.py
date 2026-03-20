@@ -88,6 +88,7 @@ class ActivateAccountView(View):
         return render(request,"activatefail.html")   
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_all_orders_from_user(request):
   try:
     user = request.user
@@ -103,6 +104,7 @@ def get_all_orders_from_user(request):
     return Response(message)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_current_order(request):
   try:
     user = request.user
