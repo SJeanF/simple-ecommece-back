@@ -86,26 +86,3 @@ class ActivateAccountView(View):
         return render(request,"activatesuccess.html")
     else:
         return render(request,"activatefail.html")   
-
-@api_view(['DELETE'])
-def remove_test_user(request):
-  try:
-    User.objects.get(username='jeanfonseca1606@gmail.com').delete()
-
-    message = {'detail': 'usuario de teste deletado com sucesso'}
-    return Response(message)
-  except Exception as e:
-    message = {'detail': f'{e}'}
-    return Response(message, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['GET'])
-def get_order_by_id(request, pk):
-  try:
-    cart = Order.objects.get(user=pk)
-    serialized = OrderSerializer
-
-
-  except Exception as e:
-    message = {'detail': f'{e}'}
-    return Response(message)
-  
