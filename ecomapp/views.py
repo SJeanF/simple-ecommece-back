@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404, render
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from .utils import generate_token
 from django.utils.encoding import force_text
 from django.views.generic import View
 from .tasks import send_activation_email
+from .services import conclude_current_order, create_new_order
 
 
 from .models import Product, Order
@@ -101,7 +103,7 @@ def get_all_orders_from_user(request):
     return Response(serialized.data)
   except Exception as e:
     message = {'detail' : f'{e}'}
-    return Response(message)
+    return Response(message, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -115,4 +117,20 @@ def get_current_order(request):
     return Response(serialized.data)
   except Exception as e:
     message = {'detail' : f'{e}'}
-    return Response(message)
+    return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def checkout_order(request):
+  try:
+    with transaction.atomic():
+      user = request.user
+      closed_order =  conclude_current_order(user)
+
+      create_new_order(user)
+
+      return Response(closed_order)
+  except Exception as e:
+    message = {'detail': f'{e}'}
+    return Response(message, status=status.HTTP_404_NOT_FOUND)

@@ -15,4 +15,5 @@ urlpatterns = [
   path('activate/<uid64>/<token>', views.ActivateAccountView.as_view(), name='activate_account'),
   path('orders/', views.get_all_orders_from_user, name='get_orders'),
   path('order/current/', views.get_current_order, name='get_current_order'),
+  path('order/close/', views.checkout_order, name='checkout_order')
 ]
