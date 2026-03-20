@@ -13,5 +13,6 @@ urlpatterns = [
   path('login/refresh', TokenRefreshView.as_view(), name='token_refresh'),
   path('signup/', views.register_user, name='register_user'),
   path('activate/<uid64>/<token>', views.ActivateAccountView.as_view(), name='activate_account'),
-  path('orders/<int:pk>', views.get_all_orders_from_user, name='get_orders')
+  path('orders/<int:pk>', views.get_all_orders_from_user, name='get_orders'),
+  path('order/current/<int:pk>', views.get_current_order_by_user, name='get_current_order'),
 ]
