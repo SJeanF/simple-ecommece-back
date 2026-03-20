@@ -86,3 +86,27 @@ class ActivateAccountView(View):
         return render(request,"activatesuccess.html")
     else:
         return render(request,"activatefail.html")   
+
+@api_view(['GET'])
+def get_all_orders_from_user(request, pk):
+  try:
+    order = Order.objects.filter(_id=pk)
+    serialized = OrderSerializer(order, many=True)
+
+    print(order)
+
+    return Response(serialized.data)
+  except Exception as e:
+    message = {'detail' : f'{e}'}
+    return Response(message)
+
+@api_view(['GET'])
+def get_current_order_by_user(request, pk):
+  try:
+    order = Order.objects.get(user=pk, is_completed=False)
+    serialized = OrderSerializer(order, many=False)
+
+    return Response(serialized.data)
+  except Exception as e:
+    message = {'detail' : f'{e}'}
+    return Response(message)
