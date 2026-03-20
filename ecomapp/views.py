@@ -16,23 +16,23 @@ from django.views.generic import View
 from .tasks import send_activation_email
 
 
-from .models import Product
-from .serializers import ProductSerializer, UserSerializer, UserSerializerWithToken
+from .models import Product, Order
+from .serializers import ProductSerializer, UserSerializer, UserSerializerWithToken, OrderSerializer
 
 # Create your views here.
 @api_view(['GET'])
-def getRoutes(request):
+def get_routes(request):
   return Response('Hello Jenan')
 
 @api_view(['GET'])
-def getProducts(request):
+def get_products(request):
   products = Product.objects.all()
   serialized = ProductSerializer(products, many=True)
 
   return Response(serialized.data)
 
 @api_view(['GET'])
-def getProduct(request, pk):
+def get_product_by_id(request, pk):
 
   product = get_object_or_404(Product, _id=pk)
   serialized = ProductSerializer(product, many=False)
@@ -41,7 +41,7 @@ def getProduct(request, pk):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserProfile(request): 
+def get_user_profile(request): 
   user = request.user
   serialized = UserSerializerWithToken(user, many=False)
 
@@ -49,7 +49,7 @@ def getUserProfile(request):
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
-def getUsers(request):
+def get_users(request):
   users = User.objects.all()
   serialized = UserSerializer(users, many=True)
 
@@ -59,7 +59,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
   serializer_class = CustomTokenObtainPairSerializer
 
 @api_view(['POST'])
-def registerUser(request):
+def register_user(request):
   data = request.data
   try :
     user = User.objects.create(first_name=data['fname'], last_name=data['lname'], username=data['email'], email=data['email'], password=make_password(data['password']), is_active=False)
@@ -88,7 +88,7 @@ class ActivateAccountView(View):
         return render(request,"activatefail.html")   
 
 @api_view(['DELETE'])
-def remove_testUser(request):
+def remove_test_user(request):
   try:
     User.objects.get(username='jeanfonseca1606@gmail.com').delete()
 
@@ -97,3 +97,15 @@ def remove_testUser(request):
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_order_by_id(request, pk):
+  try:
+    cart = Order.objects.get(user=pk)
+    serialized = OrderSerializer
+
+
+  except Exception as e:
+    message = {'detail': f'{e}'}
+    return Response(message)
+  
