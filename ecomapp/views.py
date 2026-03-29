@@ -15,11 +15,11 @@ from .utils import generate_token
 from django.utils.encoding import force_text
 from django.views.generic import View
 from .tasks import send_activation_email
-from .services import conclude_current_order, create_new_order
+from .services import conclude_current_order, create_new_order, add_or_update_order_item
 
 
-from .models import Product, Order
-from .serializers import ProductSerializer, UserSerializer, UserSerializerWithToken, OrderSerializer
+from .models import Product, Order, OrderItem
+from .serializers import ProductSerializer, UserSerializer, UserSerializerWithToken, OrderSerializer, OrderItemSerializer
 
 # Create your views here.
 @api_view(['GET'])
@@ -130,8 +130,24 @@ def checkout_order(request):
       serialized_closed_order= OrderSerializer(closed_order, many=False)
 
       create_new_order(user)
-
+                              # fazer com que o date_price dos OrderItem sejam preenchidos
       return Response(serialized_closed_order.data)
+  except Exception as e:
+    message = {'detail': f'{e}'}
+    return Response(message, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_update_order(request):
+  try:
+    with transaction.atomic():
+      user = request.user
+      body = request.data
+
+      result_order = add_or_update_order_item(user, body['_id'], body['quantity'])
+
+      serialized_order = OrderSerializer(result_order, many=False)
+      return Response(serialized_order.data)
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
