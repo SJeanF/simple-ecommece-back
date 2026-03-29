@@ -38,4 +38,4 @@ class OrderItem(models.Model):
   date_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
 
   def __str__(self):
-    return f'order: {self.order._id}, item: {self._id}-{self.product.name}, owner: {self.order.user.username}'
+    return f'order: {self.order._id}, item: {self.product._id}-{self.product.name}, owner: {self.order.user.username}'
