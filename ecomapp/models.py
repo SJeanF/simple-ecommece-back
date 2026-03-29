@@ -38,4 +38,4 @@ class OrderItem(models.Model):
   date_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
 
   def __str__(self):
-    return self.product.name
+    return f'order-item: {self.product.name}'
