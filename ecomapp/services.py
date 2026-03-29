@@ -3,12 +3,15 @@ from django.shortcuts import get_object_or_404
 from .models import Order, Product, OrderItem
 
 def conclude_current_order(user):
-  current_order = Order.objects.get(user=user, is_completed=False)
-  current_order.is_completed = True
-  current_order.closed_at = timezone.now()
-  current_order.save()
+  order = get_object_or_404(Order,user=user, is_completed=False)
+  order.is_completed = True
+  order.closed_at = timezone.now()
+  for item in order.items.all():
+    item.date_price = item.product.price
+    item.save()
+  order.save()
 
-  return current_order
+  return order
 
 def create_new_order(user):
   Order.objects.create(user=user)

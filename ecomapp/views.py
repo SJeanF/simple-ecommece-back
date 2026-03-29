@@ -127,10 +127,10 @@ def checkout_order(request):
     with transaction.atomic():
       user = request.user
       closed_order =  conclude_current_order(user)
+      create_new_order(user)
+
       serialized_closed_order= OrderSerializer(closed_order, many=False)
 
-      create_new_order(user)
-                              # fazer com que o date_price dos OrderItem sejam preenchidos
       return Response(serialized_closed_order.data)
   except Exception as e:
     message = {'detail': f'{e}'}
