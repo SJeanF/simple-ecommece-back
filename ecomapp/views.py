@@ -15,7 +15,7 @@ from .utils import generate_token
 from django.utils.encoding import force_text
 from django.views.generic import View
 from .tasks import send_activation_email
-from .services import conclude_current_order, create_new_order, add_or_update_order_item
+from .services import conclude_current_order, create_new_order, add_or_update_order_item, detele_item
 
 
 from .models import Product, Order, OrderItem
@@ -151,3 +151,19 @@ def create_update_order(request):
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
+  
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_order_item(request):
+  try:
+      
+    with transaction.atomic():
+      user = request.user
+      body = request.data
+
+      order = detele_item(user, body['_id'])
+      serialized_order = OrderSerializer(order, many=False)
+
+      return Response(serialized_order.data)
+  except Exception as e:
+    return Response({'detail': f'{e}'}, status=status.HTTP_404_NOT_FOUND)  

@@ -29,3 +29,13 @@ def add_or_update_order_item(user, item_id, item_quantity):
     OrderItem.objects.create(product=product, quantity=item_quantity, order=order)
 
   return order
+
+def detele_item(user, id):
+  order = get_object_or_404(Order, user=user, is_completed=False)
+  exist = order.items.filter(product___id=id).exists()
+
+  if exist:
+    order.items.get(product___id=id).delete()
+    return order
+  else:
+    raise Exception('The requested item could not be found.')
