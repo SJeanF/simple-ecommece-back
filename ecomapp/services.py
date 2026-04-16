@@ -16,19 +16,20 @@ def conclude_current_order(user):
 def create_new_order(user):
   Order.objects.create(user=user)
 
-def add_or_update_order_item(user, item_id, item_quantity):
+def create_item(user, item_id, item_quantity):
   order = get_object_or_404(Order, user=user, is_completed=False)
   product = get_object_or_404(Product, _id=item_id)
 
-  aready_in_order = order.items.filter(product___id=item_id).exists()
-  if aready_in_order:
-    order_item = OrderItem.objects.get(product___id=item_id, order=order)
+  aready_exist = order.items.filter(product=product)
+
+  if (aready_exist):
+    order_item = get_object_or_404(OrderItem, product=product)
     order_item.quantity = item_quantity
     order_item.save()
-  else: 
-    OrderItem.objects.create(product=product, quantity=item_quantity, order=order)
+  else:
+    order_item = OrderItem.objects.create(product=product, quantity=item_quantity, order=order)
 
-  return order
+  return order_item   # tlvz mudar esse retorno para ser a order inteira, e mudara forma como o site trata essa informações
 
 def detele_item(user, id):
   order = get_object_or_404(Order, user=user, is_completed=False)
@@ -39,3 +40,8 @@ def detele_item(user, id):
     return order
   else:
     raise Exception('The requested item could not be found.')
+
+def set(user, item_id, quantity):
+  order_item = get_object_or_404(OrderItem, order__user=user, product=item_id)
+  order_item.quantity = quantity
+  order_item.save()

@@ -15,7 +15,7 @@ from .utils import generate_token
 from django.utils.encoding import force_text
 from django.views.generic import View
 from .tasks import send_activation_email
-from .services import conclude_current_order, create_new_order, add_or_update_order_item, detele_item
+from .services import conclude_current_order, create_new_order, create_item, detele_item, set
 
 
 from .models import Product, Order, OrderItem
@@ -98,8 +98,6 @@ def get_all_orders_from_user(request):
     order = Order.objects.filter(user=user.id)
     serialized = OrderSerializer(order, many=True)
 
-    print(order)
-
     return Response(serialized.data)
   except Exception as e:
     message = {'detail' : f'{e}'}
@@ -111,7 +109,7 @@ def get_current_order(request):
   try:
     user = request.user
 
-    order = Order.objects.get(user=user.id, is_completed=False)
+    order = get_object_or_404(Order, user=user.id, is_completed=False)
     serialized = OrderSerializer(order, many=False)
 
     return Response(serialized.data)
@@ -138,20 +136,39 @@ def checkout_order(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def create_update_order(request):
+def create_order_item(request):
+  user = request.user
+  body = request.data
   try:
     with transaction.atomic():
-      user = request.user
-      body = request.data
 
-      result_order = add_or_update_order_item(user, body['_id'], body['quantity'])
+      result_item = create_item(user, body['_id'], body['quantity'])
 
-      serialized_order = OrderSerializer(result_order, many=False)
+      serialized_item = OrderItemSerializer(result_item, many=False)
+      return Response(serialized_item.data)
+  except Exception as e:
+    message = {'detail': f'{e}'}
+    return Response(message, status=status.HTTP_404_NOT_FOUND)
+  
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def set_item_quatity(request):    # mudar essa view para ser um set para facilitar na forma como o front vai fazer a requisição
+  user = request.user
+  body = request.data
+  try:
+    with transaction.atomic():
+      set(user, body['_id'], quantity=body['quantity'])
+
+      current_order = get_object_or_404(Order, user=user, is_completed=False)
+      serialized_order = OrderSerializer(current_order, many=False)
+
       return Response(serialized_order.data)
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
   
+  
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_order_item(request):

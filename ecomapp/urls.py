@@ -16,6 +16,7 @@ urlpatterns = [
   path('orders/', views.get_all_orders_from_user, name='get_orders'),
   path('order/current/', views.get_current_order, name='get_current_order'),
   path('order/close/', views.checkout_order, name='checkout_order'),
-  path('order-item/create/', views.create_update_order, name='create_order_item'),
+  path('order-item/create/', views.create_order_item, name='create_order_item'),
+  path('order-item/set-quantity/', views.set_item_quatity, name='set_quantity'),
   path('order-item/delete/', views.delete_order_item, name='delete_order_item')
-]
+] 
