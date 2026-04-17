@@ -24,12 +24,11 @@ def create_item(user, item_id, item_quantity):
 
   if (aready_exist):
     order_item = get_object_or_404(OrderItem, product=product)
-    order_item.quantity = item_quantity
+    order_item.quantity += item_quantity
     order_item.save()
   else:
-    order_item = OrderItem.objects.create(product=product, quantity=item_quantity, order=order)
+    OrderItem.objects.create(product=product, quantity=item_quantity, order=order)
 
-  return order_item   # tlvz mudar esse retorno para ser a order inteira, e mudara forma como o site trata essa informações
 
 def detele_item(user, id):
   order = get_object_or_404(Order, user=user, is_completed=False)

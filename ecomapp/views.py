@@ -142,10 +142,12 @@ def create_order_item(request):
   try:
     with transaction.atomic():
 
-      result_item = create_item(user, body['_id'], body['quantity'])
+      create_item(user, body['_id'], body['quantity'])
 
-      serialized_item = OrderItemSerializer(result_item, many=False)
-      return Response(serialized_item.data)
+      current_order = get_object_or_404(Order, user=user, is_completed=False)
+      serialized_order = OrderSerializer(current_order, many=False)
+
+      return Response(serialized_order.data)
   except Exception as e:
     message = {'detail': f'{e}'}
     return Response(message, status=status.HTTP_404_NOT_FOUND)
